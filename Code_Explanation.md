@@ -38,7 +38,7 @@
 - feature_manager.cpp：特征点管理，三角化，关键帧等
 - parameters.cpp：读取参数
 
-参考博客：[VINS-Mono论文学习与代码解读----目录与参考](https://www.baidu.com/s?ie=UTF-8&wd=Manii)
+参考博客：[VINS-Mono论文学习与代码解读----目录与参考](https://blog.csdn.net/u012871872/article/details/78128087?locationNum=8&fps=1)
 
 ------
 
