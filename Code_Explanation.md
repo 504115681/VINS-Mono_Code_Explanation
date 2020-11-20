@@ -111,31 +111,31 @@ int main(int argc, char **argv){}
 
 - `readParameters(n);`
 
-  > 函数形式：`void readParameters(ros::NodeHandle &n)`{}
-  >
-  > 位置：feature_trackers/parameters.cpp
-  >
-  > 作用：读取参数，读取如config->euroc->euroc_config.yaml中的一些配置参数
+  函数形式：`void readParameters(ros::NodeHandle &n){}`
+
+  位置：feature_trackers/parameters.cpp
+
+  作用：读取参数，读取如config->euroc->euroc_config.yaml中的一些配置参数
 
 - `trackerData[i].readIntrinsicParameter(CAM_NAMES[i]);`
 
-  > 函数形式：`void FeatureTracker::readIntrinsicParameter(const string &calib_file){}`
-  >
-  > 位置：feature_trackers/feature_tracker.cpp
-  >
-  > 作用：读取相机内参
-  >
-  > 用法说明：单目时i=0，只有一个相机和对应的内参，trackerData[NUM_OF_CAM]是定义的FeatureTracker类，这里NUM_OF_CAM=1
+  函数形式：`void FeatureTracker::readIntrinsicParameter(const string &calib_file){}`
+
+  位置：feature_trackers/feature_tracker.cpp
+
+  作用：读取相机内参
+
+  用法说明：单目时i=0，只有一个相机和对应的内参，trackerData[NUM_OF_CAM]是定义的FeatureTracker类，这里NUM_OF_CAM=1
 
 - `cv::imread(FISHEYE_MASK, 0);`
 
-  > 函数形式：`CV_EXPORTS_W Mat imread( const String& filename, int flags = IMREAD_COLOR );`
-  >
-  > 位置：opencv安装的位置
-  >
-  > 作用：读取图像
-  >
-  > 用法说明：opencv库函数，读取FISHEYE_MASK代表的路径对应的图像，第二个参数代表图像的类型，flags=1为彩色图像；fags=0为灰度图像
+  函数形式：`CV_EXPORTS_W Mat imread( const String& filename, int flags = IMREAD_COLOR );`
+
+  位置：opencv安装的位置
+
+  作用：读取图像
+
+  用法说明：opencv库函数，读取FISHEYE_MASK代表的路径对应的图像，第二个参数代表图像的类型，flags=1为彩色图像；fags=0为灰度图像
 
 第二个：图像的回调函数
 
@@ -161,7 +161,7 @@ void img_callback(const sensor_msgs::ImageConstPtr &img_msg){}
 
 输出：
 
-三个话题消息
+三个话题和对应的话题消息
 
 > pub_img：特征点信息
 >
@@ -171,20 +171,48 @@ void img_callback(const sensor_msgs::ImageConstPtr &img_msg){}
 
 用到的函数：
 
-- `trackerData[i].readIntrinsicParameter(CAM_NAMES[i]);`
+- `img_msg->header.stamp.toSec();`
 
-  > 函数形式：`void FeatureTracker::readIntrinsicParameter(const string &calib_file){}`
-  >
-  > 位置：feature_trackers/feature_tracker.cpp
-  >
-  > 作用：读取相机内参
-  >
-  > 用法说明：单目时i=0，只有一个相机和对应的内参，trackerData[NUM_OF_CAM]是定义的FeatureTracker类，这里NUM_OF_CAM=1
+  函数形式：`.toSec()`
 
+  位置：ros安装的路径
 
+  作用：把时间戳转化成浮点型格式，单位为s
+
+- `trackerData[i].readImage(ptr->image.rowRange(ROW * i, ROW * (i + 1)), img_msg->header.stamp.toSec());`
+
+  函数形式：`void FeatureTracker::readImage(const cv::Mat &_img, double _cur_time){}`
+
+  位置：feature_trackers/feature_tracker.cpp
+
+  作用：读取图像数据进行处理
 
 用到的公式：
 
-- `trackerData[i].readIntrinsicParameter(CAM_NAMES[i]);`
+- 
 
   
+
+消息类型：
+
+- sensor_msgs::PointCloud
+
+  > std_msgs/Header header
+  >
+  > geometry_msgs/Point32[] points
+  >
+  > sensor_msgs/ChannelFloat32[] channels
+
+- sensor_msgs::Image
+
+  > std_msgs/Header header
+  > uint32 height
+  > uint32 width
+  > string encoding
+  > uint8 is_bigendian
+  > uint32 step
+  > uint8[] data
+
+- std_msgs::Bool
+
+  > bool data
