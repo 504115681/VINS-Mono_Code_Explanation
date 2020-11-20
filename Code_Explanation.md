@@ -59,7 +59,7 @@
 
 ------
 
-#### feature_tracker_node.cpp 特征跟踪线程的系统入口
+#### feature_tracker_node.cpp（特征跟踪线程的系统入口）
 
 两个函数：
 
@@ -73,46 +73,118 @@ int main(int argc, char **argv){}
 
 特征跟踪线程的系统入口。
 
-订阅图像话题，发布三个话题：特征点信息、特征点图像、特征跟踪模块是否出错
+订阅图像话题，发布三个话题消息：pub_img：特征点信息、pub_match：特征点图像、pub_restart：特征跟踪模块是否出错
 
 输入：
 
-图像话题(如/cam0/image_raw)
+图像话题
+
+> 通过订阅图像话题输入：
+>
+> `ros::Subscriber sub_img = n.subscribe(IMAGE_TOPIC, 100, img_callback);`
+>
+> IMAGE_TOPIC为话题名称，通过parameters.cpp中：
+>
+> `void readParameters(ros::NodeHandle &n){fsSettings["image_topic"] >> IMAGE_TOPIC;}`
+>
+> 传入进来，image_topic是config.yaml中用户给的图像话题名称
 
 输出：
 
-三个话题：特征点信息、特征点图像、特征跟踪模块是否出错
+三个话题消息：特征点信息、特征点图像、特征跟踪模块是否出错
+
+> 通过发布三个话题输出话题消息：
+>
+> pub_img：特征点信息
+>
+> `pub_img = n.advertise<sensor_msgs::PointCloud>("feature", 1000);`
+>
+> pub_match：特征点图像
+>
+> `pub_match = n.advertise<sensor_msgs::Image>("feature_img",1000);`
+>
+> pub_restart：特征跟踪模块是否出错
+>
+> `pub_restart = n.advertise<std_msgs::Bool>("restart",1000);`
 
 用到的函数：
 
 - `readParameters(n);`
 
-  函数形式：`void readParameters(ros::NodeHandle &n)`{}
-
-  位置：feature_trackers/parameters.cpp
-
-  作用：读取参数，读取如config->euroc->euroc_config.yaml中的一些配置参数
+  > 函数形式：`void readParameters(ros::NodeHandle &n)`{}
+  >
+  > 位置：feature_trackers/parameters.cpp
+  >
+  > 作用：读取参数，读取如config->euroc->euroc_config.yaml中的一些配置参数
 
 - `trackerData[i].readIntrinsicParameter(CAM_NAMES[i]);`
 
-  函数形式：`void FeatureTracker::readIntrinsicParameter(const string &calib_file){}`
-
-  位置：feature_trackers/feature_tracker.cpp
-
-  作用：读取相机内参
-
-  用法说明：单目时i=0，只有一个相机和对应的内参，trackerData[NUM_OF_CAM]是定义的FeatureTracker类，这里NUM_OF_CAM=1
+  > 函数形式：`void FeatureTracker::readIntrinsicParameter(const string &calib_file){}`
+  >
+  > 位置：feature_trackers/feature_tracker.cpp
+  >
+  > 作用：读取相机内参
+  >
+  > 用法说明：单目时i=0，只有一个相机和对应的内参，trackerData[NUM_OF_CAM]是定义的FeatureTracker类，这里NUM_OF_CAM=1
 
 - `cv::imread(FISHEYE_MASK, 0);`
 
-  函数形式：`CV_EXPORTS_W Mat imread( const String& filename, int flags = IMREAD_COLOR );`
+  > 函数形式：`CV_EXPORTS_W Mat imread( const String& filename, int flags = IMREAD_COLOR );`
+  >
+  > 位置：opencv安装的位置
+  >
+  > 作用：读取图像
+  >
+  > 用法说明：opencv库函数，读取FISHEYE_MASK代表的路径对应的图像，第二个参数代表图像的类型，flags=1为彩色图像；fags=0为灰度图像
 
-  位置：opencv安装的位置
+第二个：图像的回调函数
 
-  作用：读取图像
-
-  用法说明：opencv库函数，读取FISHEYE_MASK代表的路径对应的图像，第二个参数代表图像的类型，flags=1为彩色图像；fags=0为灰度图像
-
-```c++
+```C++
 void img_callback(const sensor_msgs::ImageConstPtr &img_msg){}
 ```
+
+作用：
+
+订阅图像话题，发布三个话题：特征点信息、特征点图像、特征跟踪模块是否出错
+
+输入：
+
+图像消息指针
+
+> 主函数中回调函数订阅的图像话题对应的地址，存放到img_msg消息指针的地址中
+>
+> 引用传递，这时存放的是由主调函数放进来的实参变量的地址
+>
+> const的作用：该指针变量对应的值一经初始化，就不可以更改。
+>
+> 该消息类型为：sensor_msgs::ImageConstPtr
+
+输出：
+
+三个话题消息
+
+> pub_img：特征点信息
+>
+> pub_match：特征点图像
+>
+> pub_restart：特征跟踪模块是否出错
+
+用到的函数：
+
+- `trackerData[i].readIntrinsicParameter(CAM_NAMES[i]);`
+
+  > 函数形式：`void FeatureTracker::readIntrinsicParameter(const string &calib_file){}`
+  >
+  > 位置：feature_trackers/feature_tracker.cpp
+  >
+  > 作用：读取相机内参
+  >
+  > 用法说明：单目时i=0，只有一个相机和对应的内参，trackerData[NUM_OF_CAM]是定义的FeatureTracker类，这里NUM_OF_CAM=1
+
+
+
+用到的公式：
+
+- `trackerData[i].readIntrinsicParameter(CAM_NAMES[i]);`
+
+  
